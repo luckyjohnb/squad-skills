@@ -1,0 +1,83 @@
+﻿name: Update Marketplace Index
+
+on:
+  push:
+    paths:
+      - 'skills/**/SKILL.md'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update marketplace.json
+        run: |
+          cat > update-marketplace.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          const skillsDir = './skills';
+          const skills = [];
+
+          // Read all skill directories
+          const dirs = fs.readdirSync(skillsDir).filter(d => 
+            fs.statSync(path.join(skillsDir, d)).isDirectory()
+          );
+
+          for (const dir of dirs) {
+            const skillPath = path.join(skillsDir, dir, 'SKILL.md');
+            if (!fs.existsSync(skillPath)) continue;
+
+            const content = fs.readFileSync(skillPath, 'utf8');
+            
+            // Extract YAML frontmatter
+            const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
+            if (!match) continue;
+
+            const frontmatter = match[1];
+            const parseField = (name) => {
+              const m = frontmatter.match(new RegExp(`${name}:\\s*["']?([^"'\\n]+)["']?`));
+              return m ? m[1].trim() : null;
+            };
+
+            const skill = {
+              name: parseField('name') || dir,
+              description: parseField('description') || '',
+              domain: parseField('domain') || 'general',
+              confidence: parseField('confidence') || 'medium'
+            };
+
+            skills.push(skill);
+          }
+
+          // Sort alphabetically
+          skills.sort((a, b) => a.name.localeCompare(b.name));
+
+          const marketplace = {
+            version: "1",
+            updated: new Date().toISOString().split('T')[0],
+            owner: "${{ github.repository_owner }}",
+            description: "Personal Squad skills marketplace",
+            skills
+          };
+
+          fs.writeFileSync('./marketplace.json', JSON.stringify(marketplace, null, 2) + '\n');
+          console.log(`Updated marketplace.json with ${skills.length} skills`);
+          EOF
+
+          node update-marketplace.js
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add marketplace.json
+          git diff --cached --quiet || git commit -m "chore: update marketplace.json"
+          git push
