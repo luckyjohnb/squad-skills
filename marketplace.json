@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1",
   "updated": "2026-05-28",
   "owner": "luckyjohnb",
@@ -18,8 +18,8 @@
     },
     {
       "name": "error-recovery",
-      "description": "Standard recovery patterns for all squad agents",
-      "domain": "reliability",
+      "description": "Standard recovery patterns for all squad agents. When something fails, adapt — don",
+      "domain": "reliability, agent-coordination",
       "confidence": "high"
     },
     {
@@ -31,19 +31,7 @@
     {
       "name": "history-hygiene",
       "description": "Record final outcomes to history.md, not intermediate requests or reversed decisions",
-      "domain": "documentation",
-      "confidence": "high"
-    },
-    {
-      "name": "model-selection",
-      "description": "Determines which LLM model to use for each agent spawn",
-      "domain": "orchestration",
-      "confidence": "high"
-    },
-    {
-      "name": "release-process",
-      "description": "Pre-release validation checks that prevent broken publishes",
-      "domain": "releases",
+      "domain": "documentation, team-collaboration",
       "confidence": "high"
     },
     {
@@ -54,8 +42,8 @@
     },
     {
       "name": "secret-handling",
-      "description": "Never read .env files or write secrets to committed files",
-      "domain": "security",
+      "description": "Never read .env files or write secrets to .squad/ committed files",
+      "domain": "security, file-operations, team-collaboration",
       "confidence": "high"
     },
     {
@@ -66,13 +54,13 @@
     },
     {
       "name": "test-discipline",
-      "description": "Update tests when changing APIs  no exceptions",
+      "description": "Update tests when changing APIs — no exceptions",
       "domain": "quality",
       "confidence": "high"
     },
     {
       "name": "windows-compatibility",
-      "description": "Cross-platform path handling and command patterns for Windows",
+      "description": "Cross-platform path handling and command patterns",
       "domain": "platform",
       "confidence": "high"
     }
